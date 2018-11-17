@@ -1,0 +1,9 @@
+[Unit]
+Description=C64 Emulator Service
+
+[Service]
+ExecStart=/home/pi/bin/start64
+
+[Install]
+WantedBy=default.target
+

@@ -1,0 +1,15 @@
+[Unit]
+Description=Pi Shutdown by Reset Key
+
+[Service]
+ExecStart=/home/pi/bin/pishutdown64
+WorkingDirectory=/home/pi/bin/
+#Restart=always
+#StandardOutput=syslog
+#StandardError=syslog
+#SyslogIdentifier=pishutdown64
+#User=pi
+#Group=gpio
+
+[Install]
+WantedBy=default.target

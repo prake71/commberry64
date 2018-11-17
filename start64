@@ -1,0 +1,18 @@
+#!/bin/bash
+######################################################
+#
+# NAME:
+#   start64
+#
+# PURPOSE:
+#   starts vice's C64 emulator with different workdir
+#   script is usually called from systemd via service
+#   definition
+#   see ~/.config/systemd/user/c64.service
+#
+# HISTORY:
+#   0.1 09/22/2018 initial creation
+#
+######################################################
+
+/home/pi/vice/bin/x64 --chdir /home/pi/games

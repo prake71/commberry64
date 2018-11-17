@@ -1,0 +1,9 @@
+[Unit]
+Description=Syncing C64 USB Folder
+
+[Service]
+ExecStart=/home/pi/bin/usbsync64
+
+[Install]
+WantedBy=default.target
+

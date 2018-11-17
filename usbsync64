@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+
+"""
+#################################################################################################
+# NAME:
+#    usbsync64
+#
+# PURPOSE:
+#    Whenever an external usb storage device is being connected, the script copies
+#    its content into a directory games within the user's home directory.  
+#    A sub directory is created with the name of the drive it was copied from.
+#    If the target folder (earlier copy of the disk's content) exists, it overwrites 
+#    the earlier copy.
+#    The entry excluded =, in which you can (and probably should) list the names of your "normal", 
+#    (permanent) usb devices ("normal" drives are excluded already automatically). it seems 
+#    Ubuntu defines the type of device mainly by the file system; I tested formatting a flash drive 
+#    as ext4, and it showed up as a "normal" drive instead of a flash drive.
+#
+# REFERENCES:
+#    most code by Jacob Vlijm, see 
+#    https://stackoverflow.com/questions/4906977/how-do-i-access-environment-variables-from-python
+#
+# HISTORY:
+#    0.1 09/23/2018 initial creation derive from stackoverflow post
+#    0.2 09/23/2018 specialized for COMMBERRY64
+#
+#################################################################################################
+"""
+
+import os
+import subprocess
+import time
+import shutil
+
+#--
+HOME = os.environ['HOME']
+
+target_folder = HOME+"/games"
+excluded = ["media_extern"]
+#--
+
+def get_mountedlist():
+    rv = [(item.split()[0].replace("├─", "").replace("└─", ""), item[item.find("/"):]) for item in subprocess.check_output(["/bin/bash", "-c", "lsblk"]).decode("utf-8").split("\n") if "/" in item]
+    print(rv)
+
+    return [(item.split()[0].replace("├─", "").replace("└─", ""),
+             item[item.find("/"):]) for item in subprocess.check_output(
+            ["/bin/bash", "-c", "lsblk"]).decode("utf-8").split("\n") if "/" in item]
+
+def identify(disk):
+    command = "find /dev/disk -ls | grep /"+disk
+    output = subprocess.check_output(["/bin/bash", "-c", command]).decode("utf-8")
+    if "usb" in output:
+        return True
+    else:
+        return False
+
+done = []
+subfolder = "C64"
+while True:
+    mounted = get_mountedlist()
+    new_paths = [dev for dev in mounted if not dev in done and not dev[1] == "/"]
+    valid = [dev for dev in new_paths if (identify(dev[0]), dev[1].split("/")[-1]  in excluded) == (True, False)]
+    for item in valid:
+        #target = target_folder+"/"+item[1].split("/")[-1]
+        destpath = target_folder+"/"
+        try:
+            shutil.rmtree(destpath)
+        except FileNotFoundError:
+            pass
+        srcpath = os.path.join(item[1], subfolder)
+        if os.path.exists(srcpath):
+            shutil.copytree(srcpath, destpath)
+    done = mounted
+    time.sleep(4)
